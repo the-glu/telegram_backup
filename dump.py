@@ -4,7 +4,6 @@ import os
 import logging
 import yaml
 import datetime
-import time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,13 +16,10 @@ def build_dialogs_list():
 
     res = True
 
-    offset = 0
-
     while res:
-        res = x.dialog_list(100, offset)
+        res = x.dialog_list(100, len(base_list))
 
         base_list += res
-        offset += 100
 
     return base_list
 
@@ -59,24 +55,25 @@ def work_on_dialog(d):
 
     messages = {}
 
-    offset = 0
-
     last_messages = True
 
     while last_messages and last_checkpoint not in messages:
 
-        time.sleep(1)  # Don't flood
-
         try:
-            last_messages = x.history(d['print_name'], 500, offset, retry_connect=-1)
-        except IllegalResponseException:
+            last_messages = x.history(d['print_name'], 250, len(messages), retry_connect=-1)
+        except IllegalResponseException as e:
             last_messages = []
 
-        for message in last_messages:
-            messages[message['id']] = message
+            if str(e) == "Result parser does not allow exceptions.":
+                logging.warning("Slowing down...")
+                time.sleep(5)
 
-        offset += 500
-        logging.info("Loading, offset %s", offset)
+                last_messages = True
+        if last_messages and last_messages != True:
+            for message in last_messages:
+                messages[message['id']] = message
+
+        logging.info("Loading, offset %s", len(messages))
 
     logging.info("Found %s messages to process", len(messages))
 
