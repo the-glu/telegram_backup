@@ -13,9 +13,9 @@ A symlink is created with the printable name of each conversation.
 
 **You have to check output of logs for any error during download of messages**
 
-The script cannot yet make the difference between `No messages` and `Error retriving messages` and sometime lost older messages.
+The script cannot make the difference between `No messages` and `Error retriving messages` without any doubts and sometime lost older messages.
 
-If you have an error with one of your contact, delete the `_checkpoint.yaml` file to ensure all history will be checked again.
+If you have an error with one of your contact and the script just continue by processing messages instead of trying again, delete the `_checkpoint.yaml` file to ensure all history will be checked again.
 
 ## Usage
 
@@ -29,5 +29,6 @@ If you have an error with one of your contact, delete the `_checkpoint.yaml` fil
 ## TODOs
 
 * Check that everything is saved
+* Remove dirty hack `str(e) == "Result parser does not allow exceptions."`
 * Easy install (setup.py ?)
 * Probably dosen't works with Windows
