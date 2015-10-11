@@ -9,6 +9,14 @@ Medias are downloaded into `files` folders.
 
 A symlink is created with the printable name of each conversation.
 
+## Checkpoint
+
+**You have to check output of logs for any error during download of messages**
+
+The script cannot yet make the difference between `No messages` and `Error retriving messages` and sometime lost older messages.
+
+If you have an error with one of your contact, delete the `_checkpoint.yaml` file to ensure all history will be checked again.
+
 ## Usage
 
 * You will need [telegram-cli](https://github.com/vysheng/tg) and [pytg](https://github.com/luckydonald/pytg) and python 3. Check others repos for specific instructions.

@@ -4,6 +4,7 @@ import os
 import logging
 import yaml
 import datetime
+import time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -64,15 +65,17 @@ def work_on_dialog(d):
 
     while last_messages and last_checkpoint not in messages:
 
+        time.sleep(1)  # Don't flood
+
         try:
-            last_messages = x.history(d['print_name'], 100, offset)
+            last_messages = x.history(d['print_name'], 500, offset, retry_connect=-1)
         except IllegalResponseException:
             last_messages = []
 
         for message in last_messages:
             messages[message['id']] = message
 
-        offset += 100
+        offset += 500
         logging.info("Loading, offset %s", offset)
 
     logging.info("Found %s messages to process", len(messages))
@@ -103,33 +106,34 @@ def work_on_dialog(d):
                 loaded_data[file_key] = {}
                 logging.info("Created datafile %s", file_key)
 
-        if message['event'] == 'message':
+        if message['id'] not in loaded_data[file_key]:
+            if message['event'] == 'message':
 
-            loaded_data[file_key][message['id']] = {'from': message['from']['print_name'], 'text': message.get('text', ''), 'date': message['date']}
+                loaded_data[file_key][message['id']] = {'from': message['from']['print_name'], 'text': message.get('text', ''), 'date': message['date']}
 
-            if 'media' in message:
-                if message['media']['type'] not in ['webpage', 'contact']:
-                    result = x.load_document(message['id'])
+                if 'media' in message:
+                    if message['media']['type'] not in ['webpage', 'contact']:
+                        result = x.load_document(message['id'])
 
-                    if os.path.exists(result['result']):
+                        if os.path.exists(result['result']):
 
-                        file_dir = "files_{}_{}/".format(date.year, date.month)
-                        file_dir_full = "{}/{}/".format(working_dir, file_dir)
+                            file_dir = "files_{}_{}/".format(date.year, date.month)
+                            file_dir_full = "{}/{}/".format(working_dir, file_dir)
 
-                        if not os.path.isdir(file_dir_full):
-                            os.mkdir(file_dir_full)
+                            if not os.path.isdir(file_dir_full):
+                                os.mkdir(file_dir_full)
 
-                        media_file = "{}/{}.{}".format(file_dir_full, message['id'], result['result'].split('.')[-1].replace('/', ''))
-                        os.rename(result['result'], media_file)
+                            media_file = "{}/{}.{}".format(file_dir_full, message['id'], result['result'].split('.')[-1].replace('/', ''))
+                            os.rename(result['result'], media_file)
 
-                        loaded_data[file_key][message['id']]['media'] = '{}{}.{}'.format(file_dir, message['id'], result['result'].split('.')[-1].replace('/', ''))
-                    else:
-                        loaded_data[file_key][message['id']]['media'] = result['result']
+                            loaded_data[file_key][message['id']]['media'] = '{}{}.{}'.format(file_dir, message['id'], result['result'].split('.')[-1].replace('/', ''))
+                        else:
+                            loaded_data[file_key][message['id']]['media'] = result['result']
 
-        elif message['event'] == 'service':
-            pass
-        else:
-            logging.error("Unknow type %s", message['event'])
+            elif message['event'] == 'service':
+                pass
+            else:
+                logging.error("Unknow type %s", message['event'])
 
         if not last_checkpoint or last_checkpoint < message['id']:
             last_checkpoint = message['id']
