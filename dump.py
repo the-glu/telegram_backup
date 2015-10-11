@@ -83,7 +83,7 @@ def work_on_dialog(d):
     for id, message in messages.items():
         if 'date' not in message:
             logging.error("Not date in message %s", message['id'])
-            return
+            continue
 
         date = datetime.datetime.fromtimestamp(message['date'])
 
