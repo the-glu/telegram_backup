@@ -29,6 +29,10 @@ def work_on_dialog(d):
 
     logging.info("Working on %s %s %s", d['type'], d['print_name'], d['id'])
 
+    if not d['print_name']:
+        logging.error("%s has no print_name, cannot continue.", d['id'])
+        return
+
     working_dir = "logs/by_ids/{}/".format(d['id'])
 
     if not os.path.isdir(working_dir):
