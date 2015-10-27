@@ -1,4 +1,4 @@
-from pytg.sender import Sender
+from pytg import sender
 from pytg.exceptions import IllegalResponseException
 import os
 import logging
@@ -8,7 +8,14 @@ import time
 
 logging.basicConfig(level=logging.INFO)
 
-x = Sender("127.0.0.1", 4458)
+
+# Ugly hack: increate timeout for document reception
+# Sub hack: use a list to assign a new value
+tmp_f = list(sender.functions["load_document"])
+tmp_f[sender.FUNC_TIME] = 3600.0
+sender.functions["load_document"] = tuple(tmp_f)
+
+x = sender.Sender("127.0.0.1", 4458)
 
 
 def build_dialogs_list():
