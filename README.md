@@ -20,6 +20,7 @@ If you have an error with one of your contact and the script just continue by pr
 ## Usage
 
 * You will need [telegram-cli](https://github.com/vysheng/tg) and [pytg](https://github.com/luckydonald/pytg) and python 3. Check others repos for specific instructions.
+* You will also need yaml. Install it using `pip install pyyaml` or your favorite package manager.
 * Setup `telegram-cli` (connect it to your account :))
 * Grab a copy of the script (e.g git clone this repo)
 * Create a `logs` folder
